@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const { seller } = require('../middlewares/seller');
 const categoryController = require('../controllers/categoryController');
+const bookController = require('../controllers/bookController');
 
 
 
@@ -400,5 +401,238 @@ router.delete('/categories', protect, seller, categoryController.deleteCategory)
  *               message: "Internal Server Error"
  */
 router.get('/categories/:id', protect, seller, categoryController.getCategoryById);
+
+//--------------------BOOK ROUTES-------------------
+
+/**
+ * @swagger
+ * /books:
+ *   post:
+ *     summary: Create a new book (SellerID is added in the backend)
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Book'
+ *     responses:
+ *       201:
+ *         description: Book created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Book created successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Invalid input or creation failed
+ */
+router.post('/books', protect, seller, bookController.createBook);
+
+/**
+ * @swagger
+ * /books:
+ *   get:
+ *     summary: Retrieve all books
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all books
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 count:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Book'
+ *       500:
+ *         description: Server error
+ */
+router.get('/books', protect, bookController.getAllBooks);
+
+/**
+ * @swagger
+ * /book:
+ *   get:
+ *     summary: Get a book by ID
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the book to retrieve
+ *     responses:
+ *       200:
+ *         description: Book found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Book'
+ *       404:
+ *         description: Book not found
+ */
+router.get('/book', protect, bookController.getBookByID);
+
+/**
+ * @swagger
+ * /books:
+ *   put:
+ *     summary: Update book information
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the book to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             example:
+ *               title: Updated Book Title
+ *               author: New Author
+ *               price: 15.99
+ *               ISBN: 978-1234567890
+ *               genre: 64bd...
+ *               stock: 120
+ *     responses:
+ *       200:
+ *         description: Book updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Book updated successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Invalid input or update failed
+ */
+router.put('/books', protect, seller, bookController.updateBook);
+
+/**
+ * @swagger
+ * /books/stock:
+ *   put:
+ *     summary: Update book stock
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the book whose stock is being updated
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - stock
+ *             properties:
+ *               stock:
+ *                 type: number
+ *                 example: 50
+ *     responses:
+ *       200:
+ *         description: Stock updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Stock updated successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Missing or invalid stock value
+ */
+router.put('/books/stock', protect, seller, bookController.updateStock);
+
+/**
+ * @swagger
+ * /books:
+ *   delete:
+ *     summary: Delete a book by ID
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the book to delete
+ *     responses:
+ *       200:
+ *         description: Book deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Book deleted successfully
+ *       404:
+ *         description: Book not found
+ */
+router.delete('/books', protect, seller, bookController.deleteBook);
+
 
 module.exports = router;

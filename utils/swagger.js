@@ -45,6 +45,22 @@ const options = {
                         description: { type: 'string', example: 'All electronic items and gadgets' },
                     }
                 },
+                Book: {
+                    type: 'object',
+                    required: ['title', 'author', 'price', 'ISBN', 'stock', 'genre', 'seller'],
+                    properties: {
+                        _id: { type: 'string', example: '64bd...' },
+                        title: { type: 'string', example: 'The Great Gatsby' },
+                        author : { type: 'string', example: 'F. Scott Fitzgerald' },
+                        price: { type: 'number', format: 'float', example: 10.99 },
+                        ISBN: { type: 'string', example: '978-0743273565' },
+                        stock: { type: 'integer', example: 100 },
+                        genre: { type: 'string', example: '64bd...' },
+                        seller: { type: 'string', example: '64bd...' },
+                        createdAt: { type: 'string', format: 'date-time', example: '2023-10-01T12:00:00Z' },
+                        updatedAt: { type: 'string', format: 'date-time', example: '2023-10-01T12:00:00Z' },
+                    }
+                },
             }
         },
         security: [
