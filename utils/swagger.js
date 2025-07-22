@@ -35,7 +35,16 @@ const options = {
                         email: {type: 'string', format: 'email', example: 'johndoe@gmail.com'},
                         role: { type: 'string', enum: ['buyer', 'seller'], default: 'buyer', example: 'buyer' },
                     }
-                }
+                },
+                Category: {
+                    type: 'object',
+                    required: ['name'],
+                    properties: {
+                        _id: { type: 'string', example: '64bd...' },
+                        name: { type: 'string', example: 'Electronics' },
+                        description: { type: 'string', example: 'All electronic items and gadgets' },
+                    }
+                },
             }
         },
         security: [
