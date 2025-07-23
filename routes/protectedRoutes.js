@@ -4,6 +4,7 @@ const { protect } = require('../middlewares/auth');
 const { seller } = require('../middlewares/seller');
 const categoryController = require('../controllers/categoryController');
 const bookController = require('../controllers/bookController');
+const cartController = require('../controllers/cartController');
 
 
 
@@ -633,6 +634,149 @@ router.put('/books/stock', protect, seller, bookController.updateStock);
  *         description: Book not found
  */
 router.delete('/books', protect, seller, bookController.deleteBook);
+
+//--------------------CART ROUTES-------------------
+
+/**
+ * @swagger
+ * /cart:
+ *   get:
+ *     summary: Get the current user's cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cart fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cart'
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/', protect, cartController.getCart);
+
+/**
+ * @swagger
+ * /cart:
+ *   post:
+ *     summary: Add a book to the cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - productId
+ *               - quantity
+ *             properties:
+ *               productId:
+ *                 type: string
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Item added to cart successfully
+ *       400:
+ *         description: Invalid input or failed to add item
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/', protect, cartController.addToCart);
+
+/**
+ * @swagger
+ * /cart:
+ *   put:
+ *     summary: Update item quantity in the cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - productId
+ *               - quantity
+ *             properties:
+ *               productId:
+ *                 type: string
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Cart item updated successfully
+ *       400:
+ *         description: Invalid input or update failed
+ *       401:
+ *         description: Unauthorized
+ */
+router.put('/', protect, cartController.updateCartItem);
+
+/**
+ * @swagger
+ * /cart:
+ *   delete:
+ *     summary: Remove an item from the cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: productId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the product to remove
+ *     responses:
+ *       200:
+ *         description: Item removed from cart successfully
+ *       400:
+ *         description: Invalid product ID or deletion failed
+ *       401:
+ *         description: Unauthorized
+ */
+router.delete('/', protect, cartController.removeCartItem);
+
+/**
+ * @swagger
+ * /cart/checkout:
+ *   post:
+ *     summary: Checkout the cart and calculate total
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Checkout completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Cart checked out and cleared
+ *                 totalAmount:
+ *                   type: number
+ *                   example: 199.99
+ *       400:
+ *         description: Checkout failed due to invalid cart
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/checkout', protect, cartController.checkoutCart);
 
 
 module.exports = router;
