@@ -131,16 +131,31 @@ exports.clearCart = async (req, res) => {
 const checkoutCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    const cart = await Cart.findOne({ user: userId }).populate('items.book');
+    const cart = await Cart.findOne({ _id: userId }).populate('items.book');
 
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty or not found.' });
     }
 
-    cart.items.forEach(item => {
-      item.subtotal = item.book.price * item.quantity;
-    });
+    // Check stock availability
+    for (const item of cart.items) {
+      if (item.quantity > item.book.stock) {
+        return res.status(400).json({
+          error: `Insufficient stock for "${item.book.title}". Only ${item.book.stock} available.`,
+        });
+      }
+    }
 
+    // Deduct stock manually from each book and save
+    for (const item of cart.items) {
+      item.subtotal = item.book.price * item.quantity;
+
+      const newStock = item.book.stock - item.quantity;
+      item.book.stock = newStock;
+      await item.book.save(); // manual update, no model method required
+    }
+
+    // Calculate cart totals
     calculateCartTotals(cart);
 
     const checkoutSummary = {
@@ -156,6 +171,7 @@ const checkoutCart = async (req, res) => {
       })),
     };
 
+    // Clear cart
     cart.items = [];
     cart.totalQuantity = 0;
     cart.totalPrice = 0;
@@ -164,6 +180,6 @@ const checkoutCart = async (req, res) => {
     return res.status(200).json(checkoutSummary);
   } catch (err) {
     console.error('Checkout error:', err);
-    res.status(500).json({ error: 'Server error during checkout.' });
+    return res.status(500).json({ error: 'Server error during checkout.' });
   }
 };
