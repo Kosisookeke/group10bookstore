@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const express = require('express');
-
 
 const bookSchema = new mongoose.Schema({
     title: { type: String, required: true, trim: true },
