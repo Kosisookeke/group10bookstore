@@ -120,7 +120,7 @@ exports.getCategoryById = async (req, res) => {
 
     try {
         // Find category by ID
-        const category = await Category.findById(id);
+        const category = await Category.findById(req.params.id);
         if (!category) {
             return res.status(404).json({ message: 'Category not found' });
         }

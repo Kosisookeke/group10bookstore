@@ -1,5 +1,5 @@
-const Cart = require('../models/Cart');
-const Book = require('../models/Book');
+const Cart = require('../models/cartModel');
+const {Book} = require('../models/bookModel');
 
 const calculateCartTotals = (cart) => {
   let totalQuantity = 0;
@@ -17,9 +17,9 @@ const calculateCartTotals = (cart) => {
 exports.getCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ _id: req.user.id }).populate('items.book');
-    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+    if (!cart) return res.status(404).json({success: false, message: 'Cart not found' });
 
-    res.json(cart);
+    res.json({ success: true, data: cart.items });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -27,7 +27,7 @@ exports.getCart = async (req, res) => {
 
 exports.addToCart = async (req, res) => {
   const { bookId, quantity } = req.body;
-
+  
   if (!bookId || quantity <= 0) {
     return res.status(400).json({ message: 'Invalid book or quantity' });
   }
@@ -35,7 +35,9 @@ exports.addToCart = async (req, res) => {
   try {
     const book = await Book.findById(bookId);
     if (!book) return res.status(404).json({ message: 'Book not found' });
-
+    if (!book) {
+  return res.status(400).json({ message: 'Invalid book or quantity' });
+}
     let cart = await Cart.findById(req.user.id);
     if (!cart) {
       cart = new Cart({ _id: req.user.id, items: [] });
@@ -57,7 +59,7 @@ exports.addToCart = async (req, res) => {
     calculateCartTotals(cart);
     await cart.save();
 
-    res.status(200).json(cart);
+    res.status(200).json({ success: true, data: cart.items });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -88,7 +90,7 @@ exports.updateCartItem = async (req, res) => {
     calculateCartTotals(cart);
     await cart.save();
 
-    res.status(200).json(cart);
+    res.status(200).json({ success: true, data: cart.items });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -128,7 +130,7 @@ exports.clearCart = async (req, res) => {
   }
 };
 
-const checkoutCart = async (req, res) => {
+exports.checkoutCart = async (req, res) => {
   try {
     const userId = req.user.id;
     const cart = await Cart.findOne({ _id: userId }).populate('items.book');
