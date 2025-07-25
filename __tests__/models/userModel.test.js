@@ -10,13 +10,10 @@ jest.mock('bcryptjs', () => ({
 jest.mock('mongoose', () => {
   const mSchema = {
     pre: jest.fn().mockImplementation((event, callback) => {
-      // Store the callback and create a wrapper that updates the password
       mSchema.preSaveCallback = async function(next) {
-        // If password is modified, update it to 'hashedPassword'
         if (this.isModified('password')) {
           this.password = 'hashedPassword';
         }
-        // Call the original callback
         await callback.call(this, next);
       };
       return mSchema;
@@ -26,7 +23,6 @@ jest.mock('mongoose', () => {
     },
   };
   
-  // Create the UserModel constructor function
   function UserModel(data) {
     this.username = data?.username || '';
     this.email = data?.email || '';
@@ -50,7 +46,6 @@ jest.mock('mongoose', () => {
     return this;
   }
   
-  // Attach the schema to the model
   UserModel.schema = mSchema;
   
   const mMongoose = {
