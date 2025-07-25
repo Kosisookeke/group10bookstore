@@ -34,12 +34,16 @@ jest.mock('../../models/bookModel', () => {
     return {
       model: mockBook,
       createStock: jest.fn().mockImplementation(async (bookData, userID) => {
-        if (!bookData) {
-          throw new Error('Book data is required');
+        try {
+          if (!bookData) {
+            throw new Error('Book data is required');
+          }
+          
+          bookData.seller = userID;
+          return await mockBook.createStock(bookData);
+        } catch (error) {
+          throw new Error(`Failed to create book: ${error.message}`);
         }
-        
-        bookData.seller = userID;
-        return mockBook.createStock(bookData);
       }),
       getInfo: jest.fn(),
       updateStock: jest.fn(),

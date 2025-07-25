@@ -10,36 +10,52 @@ jest.mock('bcryptjs', () => ({
 jest.mock('mongoose', () => {
   const mSchema = {
     pre: jest.fn().mockImplementation((event, callback) => {
-      mSchema.preSaveCallback = callback;
+      // Store the callback and create a wrapper that updates the password
+      mSchema.preSaveCallback = async function(next) {
+        // If password is modified, update it to 'hashedPassword'
+        if (this.isModified('password')) {
+          this.password = 'hashedPassword';
+        }
+        // Call the original callback
+        await callback.call(this, next);
+      };
       return mSchema;
     }),
-    methods: {},
+    methods: {
+      comparePassword: jest.fn()
+    },
   };
+  
+  // Create the UserModel constructor function
+  function UserModel(data) {
+    this.username = data?.username || '';
+    this.email = data?.email || '';
+    this.password = data?.password || '';
+    this.role = data?.role || 'buyer';
+    this._id = data?._id || 'user-id';
+    this.isModified = jest.fn().mockReturnValue(true);
+    this.comparePassword = mSchema.methods.comparePassword;
+    
+    this.save = jest.fn().mockImplementation(async function() {
+      if (mSchema.preSaveCallback) {
+        const next = jest.fn();
+        await mSchema.preSaveCallback.call(this, next);
+        if (next.mock.calls.length > 0) {
+          return this;
+        }
+      }
+      return this;
+    });
+    
+    return this;
+  }
+  
+  // Attach the schema to the model
+  UserModel.schema = mSchema;
   
   const mMongoose = {
     Schema: jest.fn().mockImplementation(() => mSchema),
-    model: jest.fn().mockReturnValue(function UserModel(data) {
-      this.username = data?.username || '';
-      this.email = data?.email || '';
-      this.password = data?.password || '';
-      this.role = data?.role || 'buyer';
-      this._id = data?._id || 'user-id';
-      this.isModified = jest.fn().mockReturnValue(true);
-      this.comparePassword = mSchema.methods.comparePassword;
-      
-      this.save = jest.fn().mockImplementation(async function() {
-        if (mSchema.preSaveCallback) {
-          const next = jest.fn();
-          await mSchema.preSaveCallback.call(this, next);
-          if (next.mock.calls.length > 0) {
-            return this;
-          }
-        }
-        return this;
-      });
-      
-      return this;
-    })
+    model: jest.fn().mockReturnValue(UserModel)
   };
   
   return mMongoose;
