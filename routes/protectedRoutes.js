@@ -80,7 +80,7 @@ router.get('/dashboard', protect, (req, res) => {
  *               message: "Failed to retrieve categories"
  *               error: "Database connection failed"
  */
-router.get('/categories', protect, seller, categoryController.getAllCategories);
+router.get('/categories', categoryController.getAllCategories);
 
 /**
  * @swagger
@@ -401,7 +401,7 @@ router.delete('/categories', protect, seller, categoryController.deleteCategory)
  *             example:
  *               message: "Internal Server Error"
  */
-router.get('/categories/:id', protect, seller, categoryController.getCategoryById);
+router.get('/categories/:id', categoryController.getCategoryById);
 
 //--------------------BOOK ROUTES-------------------
 
@@ -469,7 +469,7 @@ router.post('/books', protect, seller, bookController.createBook);
  *       500:
  *         description: Server error
  */
-router.get('/books', protect, bookController.getAllBooks);
+router.get('/books', bookController.getAllBooks);
 
 /**
  * @swagger
@@ -502,7 +502,7 @@ router.get('/books', protect, bookController.getAllBooks);
  *       404:
  *         description: Book not found
  */
-router.get('/book', protect, bookController.getBookByID);
+router.get('/book', bookController.getBookByID);
 
 /**
  * @swagger
@@ -655,7 +655,7 @@ router.delete('/books', protect, seller, bookController.deleteBook);
  *       401:
  *         description: Unauthorized
  */
-router.get('/', protect, cartController.getCart);
+router.get('/cart', protect, cartController.getCart);
 
 /**
  * @swagger
@@ -687,7 +687,7 @@ router.get('/', protect, cartController.getCart);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', protect, cartController.addToCart);
+router.post('/cart', protect, cartController.addToCart);
 
 /**
  * @swagger
@@ -719,7 +719,7 @@ router.post('/', protect, cartController.addToCart);
  *       401:
  *         description: Unauthorized
  */
-router.put('/', protect, cartController.updateCartItem);
+router.put('/cart', protect, cartController.updateCartItem);
 
 /**
  * @swagger
@@ -744,7 +744,7 @@ router.put('/', protect, cartController.updateCartItem);
  *       401:
  *         description: Unauthorized
  */
-router.delete('/', protect, cartController.removeCartItem);
+router.delete('/cart', protect, cartController.removeCartItem);
 
 /**
  * @swagger
@@ -776,7 +776,7 @@ router.delete('/', protect, cartController.removeCartItem);
  *       401:
  *         description: Unauthorized
  */
-router.post('/checkout', protect, cartController.checkoutCart);
+router.post('/cart/checkout', protect, cartController.checkoutCart);
 
 
 module.exports = router;
