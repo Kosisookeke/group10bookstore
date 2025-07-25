@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const { Book, BookManager } = require('../../models/bookModel');
 
-// Mock the mongoose model and methods
 jest.mock('mongoose', () => {
   const mModel = {
     findById: jest.fn(),
@@ -19,9 +18,7 @@ jest.mock('mongoose', () => {
   return mMongoose;
 });
 
-// Mock the Book model's static methods
 jest.mock('../../models/bookModel', () => {
-  // Create a mock implementation of the Book model
   const mockBook = {
     createStock: jest.fn(),
     deleteStock: jest.fn(),
@@ -29,7 +26,6 @@ jest.mock('../../models/bookModel', () => {
     save: jest.fn()
   };
   
-  // Create a mock implementation of the BookManager class
   const MockBookManager = jest.fn().mockImplementation(() => {
     return {
       model: mockBook,
@@ -65,13 +61,10 @@ describe('BookManager', () => {
   let mockUserID;
   
   beforeEach(() => {
-    // Reset all mocks
     jest.clearAllMocks();
     
-    // Create a new instance of BookManager for each test
     bookManager = new BookManager();
     
-    // Create mock book data
     mockBookData = {
       title: 'Test Book',
       author: 'Test Author',
@@ -81,19 +74,15 @@ describe('BookManager', () => {
       genre: 'test-genre-id'
     };
     
-    // Create mock user ID
     mockUserID = 'test-user-id';
     
-    // Mock the Book.createStock method to return the book data
     Book.createStock.mockResolvedValue(mockBookData);
   });
   
   describe('createStock', () => {
     test('should call Book.createStock with the correct parameters', async () => {
-      // Act
       const result = await bookManager.createStock(mockBookData, mockUserID);
       
-      // Assert
       expect(Book.createStock).toHaveBeenCalledWith({
         ...mockBookData,
         seller: mockUserID
@@ -102,26 +91,21 @@ describe('BookManager', () => {
     });
     
     test('should add the seller ID to the book data', async () => {
-      // Act
       await bookManager.createStock(mockBookData, mockUserID);
       
-      // Assert
       expect(mockBookData.seller).toBe(mockUserID);
     });
     
     test('should throw an error if book data is not provided', async () => {
-      // Act & Assert
       await expect(bookManager.createStock(null, mockUserID))
         .rejects
         .toThrow('Book data is required');
     });
     
     test('should throw an error if Book.createStock fails', async () => {
-      // Arrange
       const errorMessage = 'Database error';
       Book.createStock.mockRejectedValue(new Error(errorMessage));
       
-      // Act & Assert
       await expect(bookManager.createStock(mockBookData, mockUserID))
         .rejects
         .toThrow(`Failed to create book: ${errorMessage}`);
