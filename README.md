@@ -46,3 +46,5 @@
     # Run the entry script
     npx nodemon app.js
     ```
+
+7. APP Demo video: https://youtu.be/cU3T47tBspY
